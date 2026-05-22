@@ -13,7 +13,7 @@ except ImportError:
     pass
 
 st.set_page_config(
-    page_title="ShieldPay — Fraud Detection",
+    page_title="Aegis — Fraud Detection",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -229,7 +229,7 @@ def build_behavioural_context(amount, time_val, top_features, fraud_proba):
 
 def generate_report(prediction, confidence, fraud_proba, amount, time_val, top_features, ctx):
     if not GROQ_API_KEY:
-        return "[ERROR] GROQ_API_KEY is not set. Copy .env.example to .env and add your key."
+        return "[ERROR] GROQ_API_KEY not configured."
     try:
         from groq import Groq
     except ImportError:
@@ -303,7 +303,7 @@ def export_pdf(report_text, prediction, confidence, amount, time_val):
     pdf.cell(0, 10, "Fraud Detection Incident Report", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "", 9)
     pdf.set_text_color(120, 120, 120)
-    pdf.cell(0, 6, f"Generated: {datetime.datetime.now().strftime('%d %B %Y, %H:%M:%S')}  |  ShieldPay Fraud Detection System", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 6, f"Generated: {datetime.datetime.now().strftime('%d %B %Y, %H:%M:%S')}  |  Aegis Fraud Detection System", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(3)
     is_fraud = prediction == "FRAUDULENT"
     pdf.set_fill_color(200, 40, 40) if is_fraud else pdf.set_fill_color(0, 140, 80)
@@ -341,14 +341,14 @@ def export_pdf(report_text, prediction, confidence, amount, time_val):
     pdf.set_y(-18)
     pdf.set_font("Helvetica", "I", 8)
     pdf.set_text_color(160, 160, 160)
-    pdf.cell(0, 6, "ShieldPay - Real-Time Credit Card Fraud Detection System | Final Year Project", align="C")
+    pdf.cell(0, 6, "Aegis - Real-Time Credit Card Fraud Detection System | Final Year Project", align="C")
     return bytes(pdf.output())
 
-ADVISOR_SYSTEM = """You are ShieldPay's expert Fraud Prevention Advisor. You are knowledgeable, friendly, and professional. You specialise exclusively in credit card and payment fraud detection, fraud prevention best practices, risk mitigation, cybersecurity relating to financial transactions, consumer scam awareness, and regulatory guidance around fraud such as GDPR and PSD2. You only answer questions within these domains. If asked about anything unrelated, politely redirect the user. Keep responses concise and practical. Never mention your underlying model name."""
+ADVISOR_SYSTEM = """You are Aegis's expert Fraud Prevention Advisor. You are knowledgeable, friendly, and professional. You specialise exclusively in credit card and payment fraud detection, fraud prevention best practices, risk mitigation, cybersecurity relating to financial transactions, consumer scam awareness, and regulatory guidance around fraud such as GDPR and PSD2. You only answer questions within these domains. If asked about anything unrelated, politely redirect the user. Keep responses concise and practical. Never mention your underlying model name."""
 
 def ask_advisor(messages: list) -> str:
     if not OPENROUTER_API_KEY:
-        return "Advisor unavailable: set OPENROUTER_API_KEY in your .env file (see .env.example)."
+        return "Advisor unavailable: OPENROUTER_API_KEY not configured."
     try:
         payload = {
             "model": "anthropic/claude-opus-4.7",
@@ -392,7 +392,7 @@ model = bundle["model"]
 # ── NAV BAR ──
 nav_left, nav_right = st.columns([1, 1])
 with nav_left:
-    st.markdown(f'<div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="font-size:20px">🛡️</span><span style="font-size:17px;font-weight:600;color:{TEXT}">ShieldPay</span><span style="font-size:12px;color:{TEXT2};margin-left:4px">Fraud Detection</span></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="font-size:20px">🛡️</span><span style="font-size:17px;font-weight:600;color:{TEXT}">Aegis</span><span style="font-size:12px;color:{TEXT2};margin-left:4px">Fraud Detection</span></div>', unsafe_allow_html=True)
 with nav_right:
     toggle_cols = st.columns([2, 1, 1])
     with toggle_cols[1]:
@@ -536,7 +536,7 @@ with main_col:
                     ctx       = build_behavioural_context(r["amount"], r["time"], r["top_features"], r["fraud_proba"])
                     pdf_bytes = export_pdf(report_text, r["prediction"], r["confidence"], r["amount"], r["time"])
                     ts        = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                    st.download_button(label="⬇  Download as PDF", data=pdf_bytes, file_name=f"shieldpay_report_{ts}.pdf", mime="application/pdf", use_container_width=True)
+                    st.download_button(label="⬇  Download as PDF", data=pdf_bytes, file_name=f"aegis_report_{ts}.pdf", mime="application/pdf", use_container_width=True)
                 except Exception as e:
                     st.error(f"PDF export failed: {e}")
 
