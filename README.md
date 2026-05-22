@@ -97,7 +97,7 @@ Trained on the [ULB MLG Credit Card Fraud](https://www.kaggle.com/datasets/mlg-u
 
 ```bash
 pip install -r requirements.txt
-unzip fraud_model.zip    # Windows: Expand-Archive fraud_model.zip .
+unzip fraud_model.zip    # Windows: Expand-Archive fraud_model.zip
 streamlit run app.py
 ```
 
