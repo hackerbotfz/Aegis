@@ -1,0 +1,10 @@
+.env
+.env.local
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.streamlit/secrets.toml
+.DS_Store
+fraud_model.pkl
+*.docx
