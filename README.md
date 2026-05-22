@@ -1,40 +1,23 @@
-# ShieldPay — Real-Time Credit Card Fraud Detection
+# Aegis — Real-Time Credit Card Fraud Detection
 
 **Final Year Project · Nottingham Trent University · BSc (Hons) Computer Science**
 
-ShieldPay is an end-to-end fraud detection platform that scores credit card transactions in real time, explains risk in plain language, and produces compliance-ready incident reports. It combines classical machine learning on imbalanced tabular data with large language models for analyst-facing narrative and a conversational fraud-prevention advisor.
+Aegis scores credit card transactions in real time, surfaces fraud probability and behavioural signals, and produces compliance-ready incident reports with PDF export. A domain-scoped fraud-prevention advisor sits alongside the analyst workflow.
 
-**Author:** [Faiz Lawan](https://github.com/hackerbotfz) · Student ID: N1258521
+**[Faiz Lawan](https://github.com/hackerbotfz)** · N1258521
 
 ---
 
 ## Overview
 
-Payment fraud costs the global economy billions each year. Financial institutions need systems that flag suspicious transactions quickly while remaining interpretable to compliance and operations teams—not just accurate on a leaderboard.
+Financial fraud detection must balance accuracy with interpretability for compliance and operations teams. Aegis combines a **Random Forest** classifier on severely imbalanced transaction data with **LLM-generated** narrative reports and a conversational advisor—delivered through a **Streamlit** interface with light/dark themes.
 
-ShieldPay addresses that gap by:
-
-1. **Scoring** each transaction with a supervised classifier trained on highly imbalanced real-world card data.
-2. **Surfacing** fraud probability, confidence, and the strongest behavioural signals driving the decision.
-3. **Generating** structured compliance reports via an LLM, written for non-technical stakeholders.
-4. **Exporting** those reports as PDFs suitable for audit trails.
-5. **Offering** an embedded fraud-prevention advisor for education and operational Q&A.
-
-The application is delivered as a polished **Streamlit** web interface with light/dark themes and a workflow modelled on how fraud analysts actually review cases.
-
----
-
-## Features
-
-| Capability | Description |
-|------------|-------------|
-| **Real-time inference** | Sub-second classification on 30-dimensional transaction vectors (time, amount, PCA-derived features). |
-| **Sample & custom inputs** | Pre-loaded fraudulent and legitimate examples from the test set, plus procedurally generated custom transactions. |
-| **Risk visualisation** | Verdict banner, confidence bar, fraud probability, and amount/time summary cards. |
-| **Behavioural context** | Rule-based enrichment (card-testing patterns, off-hours activity, anomaly counts) fed into report generation. |
-| **AI compliance reports** | Five-section incident write-ups (executive summary through recommended actions) via Groq. |
-| **PDF export** | Branded, timestamped reports using `fpdf2`. |
-| **Fraud Prevention Advisor** | Domain-scoped chat assistant (OpenRouter) covering scams, PSD2, GDPR, and mitigation practices. |
+| Layer | Role |
+|-------|------|
+| **ML** | Real-time classification on 30 features (`Time`, `Amount`, PCA components `V1`–`V28`) |
+| **Enrichment** | Rule-based behavioural context (card-testing patterns, off-hours activity, signal anomalies) |
+| **LLM** | Structured compliance reports (Groq / Llama 3.1) and fraud-prevention Q&A (OpenRouter) |
+| **Export** | Timestamped PDF incident reports |
 
 ---
 
@@ -46,15 +29,15 @@ flowchart LR
         TX[Transaction vector]
     end
 
-    subgraph ML["Scikit-learn pipeline"]
+    subgraph ML["Scikit-learn"]
         PKL[(fraud_model.pkl)]
         TX --> PKL
         PKL --> PRED[Prediction + probabilities]
-        PKL --> FEAT[Top feature importances]
+        PKL --> FEAT[Feature importances]
     end
 
     subgraph Enrichment
-        PRED --> CTX[Behavioural context builder]
+        PRED --> CTX[Behavioural context]
         FEAT --> CTX
     end
 
@@ -66,108 +49,17 @@ flowchart LR
     subgraph Output
         GROQ --> UI[Streamlit UI]
         OR --> UI
-        GROQ --> PDF[PDF download]
+        GROQ --> PDF[PDF export]
     end
 ```
 
-**Data:** Transactions follow the structure of the [ULB MLG Credit Card Fraud](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud) dataset—`Time`, `Amount`, and 28 PCA components (`V1`–`V28`) preserving anonymity while retaining predictive signal.
-
-**Model:** A tree-based ensemble (exported via `joblib`) trained with class-imbalance handling (`imbalanced-learn`). The serialized bundle includes the fitted estimator, feature column order, and optional evaluation metadata.
-
----
-
-## Tech stack
-
-- **Python 3.10+**
-- **Streamlit** — application shell and UI
-- **scikit-learn** + **imbalanced-learn** — modelling and resampling
-- **pandas** / **numpy** / **joblib** — data handling and persistence
-- **Groq API** — fast report generation (Llama 3.1)
-- **OpenRouter API** — fraud-prevention advisor
-- **fpdf2** — PDF generation
-- **requests** — HTTP client for advisor
-
----
-
-## Getting started
-
-### Prerequisites
-
-- Python 3.10 or newer
-- API keys (optional but required for full functionality):
-  - [Groq](https://console.groq.com/) — compliance reports
-  - [OpenRouter](https://openrouter.ai/) — fraud advisor chat
-
-### Installation
-
-```bash
-git clone https://github.com/hackerbotfz/FYP.git
-cd FYP
-
-python -m venv .venv
-
-# Windows
-.venv\Scripts\activate
-
-# macOS / Linux
-source .venv/bin/activate
-
-pip install -r requirements.txt
-```
-
-### Model artifact
-
-The trained classifier is distributed as `fraud_model.zip` in the repository. Extract it in the project root:
-
-```bash
-# Windows (PowerShell)
-Expand-Archive -Path fraud_model.zip -DestinationPath .
-
-# macOS / Linux
-unzip fraud_model.zip
-```
-
-You should have `fraud_model.pkl` alongside `app.py`. The app will not start without this file.
-
-### Environment variables
-
-Copy the example file and add your keys:
-
-```bash
-cp .env.example .env
-```
-
-| Variable | Purpose |
-|----------|---------|
-| `GROQ_API_KEY` | Compliance report generation |
-| `OPENROUTER_API_KEY` | Fraud Prevention Advisor |
-
-Never commit `.env` or paste keys into source code.
-
-### Run the application
-
-```bash
-streamlit run app.py
-```
-
-Open the URL shown in the terminal (default `http://localhost:8501`).
-
----
-
-## Usage
-
-1. **Load a sample** — use *Sample Transaction A* (fraudulent) or *Sample Transaction B* (legitimate), or *Custom Transaction* for a synthetic vector.
-2. **Adjust** `Time` and `Amount` if needed, then click **Run Analysis**.
-3. Review the verdict, fraud probability, and confidence.
-4. Click **Generate Compliance Report** for a narrative suitable for compliance review.
-5. **Download as PDF** to archive or share.
-6. Open **Advisor** in the nav bar to ask questions about fraud prevention, regulation, or consumer protection.
+Trained on the [ULB MLG Credit Card Fraud](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud) dataset—284,807 transactions, 0.172% fraud rate—with **SMOTE** resampling and `class_weight='balanced'` on a 200-tree ensemble.
 
 ---
 
 ## Model performance
 
-Hold-out test metrics from the trained `RandomForestClassifier` (200 estimators, SMOTE on training split, `class_weight='balanced'`):
+Hold-out test set:
 
 | Metric | Score |
 |--------|-------|
@@ -176,53 +68,38 @@ Hold-out test metrics from the trained `RandomForestClassifier` (200 estimators,
 | Recall | 0.779 |
 | ROC AUC | 0.963 |
 
-## Project structure
+---
+
+## Tech stack
+
+Python · Streamlit · scikit-learn · imbalanced-learn · pandas · numpy · joblib · Groq · OpenRouter · fpdf2
+
+---
+
+## Run
+
+```bash
+pip install -r requirements.txt
+unzip fraud_model.zip    # Windows: Expand-Archive fraud_model.zip .
+streamlit run app.py
+```
+
+`GROQ_API_KEY` and `OPENROUTER_API_KEY` enable report generation and the advisor chat.
+
+---
+
+## Repository
 
 ```
 FYP/
-├── app.py              # Streamlit application (UI, inference, LLM, PDF)
-├── requirements.txt    # Python dependencies
-├── fraud_model.zip     # Serialized classifier (extract → fraud_model.pkl)
-├── .env.example        # API key template
-├── docs/               # Screenshot guide for README
-├── SECURITY.md         # API key rotation and local secrets
-├── .gitignore
+├── app.py
+├── requirements.txt
+├── fraud_model.zip
 └── README.md
 ```
 
 ---
 
-## Academic context
-
-This repository implements the software component of a Final Year Project at **Nottingham Trent University**. The work demonstrates:
-
-- Handling **severe class imbalance** in fraud detection
-- Building **production-style** interactive tooling around an ML model
-- **Human-in-the-loop** design: ML for scoring, LLMs for explanation and education
-- Awareness of **regulatory and operational** constraints (compliance language, PDF audit trails)
-
-A full dissertation (`N1258521 Dissertation FYP.docx`) accompanies the submission; methodology, evaluation metrics, and ethical considerations are documented there.
-
----
-
-## Screenshots
-
-Visual previews can be added under `docs/` — see [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for capture steps and README markup.
-
-## Security
-
-API keys must be supplied via environment variables only. See [SECURITY.md](SECURITY.md) for key rotation steps if older commits exposed credentials.
-
----
-
 ## License
 
-Academic work — © Faiz Lawan, Nottingham Trent University. Contact the author for reuse beyond educational reference.
-
----
-
-## Acknowledgements
-
-- [ULB MLG — Credit Card Fraud Detection](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud) dataset
-- Nottingham Trent University supervisors and module staff
-- [Groq](https://groq.com/) and [OpenRouter](https://openrouter.ai/) for LLM APIs used in the demonstration layer
+© Faiz Lawan, Nottingham Trent University.
