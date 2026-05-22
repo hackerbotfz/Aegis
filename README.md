@@ -50,6 +50,8 @@ Financial fraud detection must balance accuracy with interpretability for compli
 | **LLM** | Structured compliance reports (Groq / Llama 3.1) and fraud-prevention Q&A (OpenRouter) |
 | **Export** | Timestamped PDF incident reports |
 
+---
+
 ## Architecture
 
 ```mermaid
@@ -84,7 +86,11 @@ flowchart LR
 
 Trained on the [ULB MLG Credit Card Fraud](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud) dataset—284,807 transactions, 0.172% fraud rate—with **SMOTE** resampling and `class_weight='balanced'` on a 200-tree ensemble.
 
+---
+
 ## Model performance
+
+Hold-out test set:
 
 | Metric | Score |
 |--------|-------|
@@ -92,6 +98,14 @@ Trained on the [ULB MLG Credit Card Fraud](https://www.kaggle.com/datasets/mlg-u
 | Precision | 0.881 |
 | Recall | 0.779 |
 | ROC AUC | 0.963 |
+
+---
+
+## Tech stack
+
+Python · Streamlit · scikit-learn · imbalanced-learn · pandas · numpy · joblib · Groq · OpenRouter · fpdf2
+
+---
 
 ## Run
 
@@ -103,6 +117,8 @@ streamlit run app.py
 
 `GROQ_API_KEY` and `OPENROUTER_API_KEY` enable report generation and the advisor chat.
 
+---
+
 ## Repository
 
 ```
@@ -112,6 +128,8 @@ FYP/
 ├── fraud_model.zip
 └── README.md
 ```
+
+---
 
 ## License
 
