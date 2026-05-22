@@ -6,6 +6,12 @@ import os
 import datetime
 import requests as http_requests
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 st.set_page_config(
     page_title="ShieldPay — Fraud Detection",
     page_icon="🛡️",
@@ -170,9 +176,8 @@ def randomize_pca_features():
     """Generate random PCA feature values from realistic ranges."""
     return {f"V{i}": float(np.random.normal(0, 1)) for i in range(1, 29)}
 
-# PASTE YOUR KEYS HERE
-GROQ_API_KEY       = "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"
-OPENROUTER_API_KEY = "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"
+GROQ_API_KEY       = os.environ.get("GROQ_API_KEY", "")
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 
 
 @st.cache_resource
@@ -223,6 +228,8 @@ def build_behavioural_context(amount, time_val, top_features, fraud_proba):
             "anomaly_profile": anomaly_profile, "risk_band": risk_band, "fraud_proba_pct": fraud_proba * 100}
 
 def generate_report(prediction, confidence, fraud_proba, amount, time_val, top_features, ctx):
+    if not GROQ_API_KEY:
+        return "[ERROR] GROQ_API_KEY is not set. Copy .env.example to .env and add your key."
     try:
         from groq import Groq
     except ImportError:
@@ -340,6 +347,8 @@ def export_pdf(report_text, prediction, confidence, amount, time_val):
 ADVISOR_SYSTEM = """You are ShieldPay's expert Fraud Prevention Advisor. You are knowledgeable, friendly, and professional. You specialise exclusively in credit card and payment fraud detection, fraud prevention best practices, risk mitigation, cybersecurity relating to financial transactions, consumer scam awareness, and regulatory guidance around fraud such as GDPR and PSD2. You only answer questions within these domains. If asked about anything unrelated, politely redirect the user. Keep responses concise and practical. Never mention your underlying model name."""
 
 def ask_advisor(messages: list) -> str:
+    if not OPENROUTER_API_KEY:
+        return "Advisor unavailable: set OPENROUTER_API_KEY in your .env file (see .env.example)."
     try:
         payload = {
             "model": "anthropic/claude-opus-4.7",
