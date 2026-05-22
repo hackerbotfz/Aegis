@@ -1,0 +1,30 @@
+# Environment and secrets
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Extracted model (keep fraud_model.zip in repo; ignore loose pickle if extracted locally)
+fraud_model.pkl
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Academic — keep dissertation out of the public repo
+*.docx
